@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const rotateButton = document.querySelector('#rotate')
   const turnDisplay = document.querySelector('#whose-go')
   const infoDisplay = document.querySelector('#info')
+  const singlePlayerButton = document.querySelector('#singlePlayerButton')
+  const multiPlayerButton = document.querySelector('#multiPlayerButton')
   const userSquares = []
   const computerSquares = []
   let isHorizontal = true
@@ -25,19 +27,42 @@ document.addEventListener('DOMContentLoaded', () => {
   let allShipsPlaced = false;
   let shotFired = -1;
 
+  // select player mode
+  singlePlayerButton.addEventListener('click', startSinglePlayer)
+  multiPlayerButton.addEventListener('click', startMultiPlayer)
 
-  const socket = io();
+  
+  
+  //multiplayer
+  function startMultiPlayer() {
+    gameMode = "multiplayer";
+    
+    const socket = io();
+  
+    // get your player number
+    socket.on('player-number', num => {
+      if (num === -1) {
+        infoDisplay.innerHTML = "Server is full";
+      } else {
+        playerNumber = parseInt(num);
+        if (playerNumber === 1) currentPlayer = "enemy";
+        console.log(playerNumber)
+      }
+    })
+  }
 
-  // get your player number
-  socket.on('player-number', num => {
-    if (num === -1) {
-      infoDisplay.innerHTML = "Server is full";
-    } else {
-      playerNumber = parseInt(num);
-      if (playerNumber === 1) currentPlayer = "enemy";
-      console.log(playerNumber)
-    }
-  })
+  // single player
+  function startSinglePlayer() {
+    gameMode = "singlePlayer"
+
+    generate(shipArray[0])
+    generate(shipArray[1])
+    generate(shipArray[2])
+    generate(shipArray[3])
+    generate(shipArray[4])
+
+    startButton.addEventListener('click', playGameSingle)
+  }
 
 
   //Create Board
@@ -107,11 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     else generate(ship)
   }
-  generate(shipArray[0])
-  generate(shipArray[1])
-  generate(shipArray[2])
-  generate(shipArray[3])
-  generate(shipArray[4])
 
   //Rotate the ships
   function rotate() {
@@ -212,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   //Game Logic
-  function playGame() {
+  function playGameSingle() {
     if (isGameOver) return
     if (currentPlayer === 'user') {
       turnDisplay.innerHTML = 'Your Go'
@@ -225,7 +245,6 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(computerGo, 1000)
     }
   }
-  startButton.addEventListener('click', playGame)
 
   let destroyerCount = 0
   let submarineCount = 0

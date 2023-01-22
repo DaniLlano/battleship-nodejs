@@ -29,6 +29,11 @@ io.on('connection', socket => {
     
     console.log(`Player ${playerIndex} has connected`);
     
-    if (playerIndex === -1) return;
     // ignore player 3
+    if (playerIndex === -1) return;
+
+    connections[playerIndex] = false;
+
+    // show what player number just connected
+    socket.broadcast.emit('player-connection', playerIndex)
 })
